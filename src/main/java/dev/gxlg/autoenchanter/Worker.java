@@ -545,7 +545,7 @@ public class Worker {
         if (lastAnvilPos == null || client.world == null) return;
         if (!client.world.getBlockState(lastAnvilPos).isAir()) return;
 
-        restoreHotbarSlot = player.getInventory().selectedSlot;
+        restoreHotbarSlot = player.getInventory().getSelectedSlot();
         state = State.RECOVER_SWITCH;
         recoverTimer = 0;
         recoverAttempts = 0;
@@ -560,7 +560,7 @@ public class Worker {
         recoverTimer = 0;
 
         if (state == State.RECOVER_SWITCH) {
-            player.getInventory().selectedSlot = ANVIL_HOTBAR_SLOT;
+            player.getInventory().setSelectedSlot(ANVIL_HOTBAR_SLOT);
             if (client.getNetworkHandler() != null) {
                 client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(ANVIL_HOTBAR_SLOT));
             }
@@ -611,7 +611,7 @@ public class Worker {
 
             recoverAttempts = 0;
             if (restoreHotbarSlot != null) {
-                player.getInventory().selectedSlot = restoreHotbarSlot;
+                player.getInventory().setSelectedSlot(restoreHotbarSlot);
                 if (client.getNetworkHandler() != null) {
                     client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(restoreHotbarSlot));
                 }
