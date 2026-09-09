@@ -1,0 +1,32 @@
+{
+	"schemaVersion": 1,
+	"id": "auto-enchanter",
+	"version": "${version}",
+	"name": "Auto Enchanter",
+	"description": "Enchant items in the anvil automatically with minimal cost",
+	"authors": [
+		"gXLg"
+	],
+	"contact": {
+		"homepage": "https://gXLg.dev/en",
+		"sources": "https://github.com/gXLg/auto-enchanter",
+		"issues": "https://github.com/gXLg/auto-enchanter/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/auto-enchanter/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"dev.gxlg.autoenchanter.AutoEnchanter"
+		]
+	},
+	"mixins": [
+		"client.auto-enchanter.mixins.json"
+	],
+	"depends": {
+		"fabricloader": "*",
+		"minecraft": ">=1.20.5 <=1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
