@@ -373,6 +373,19 @@ public class Worker {
 
         // NEW: handle the "anvil broke mid-enchant" auto-replace routine
         if (state == State.RECOVER_ANVIL) {
+            // NEW: check FIRST whether the real anvil screen has actually appeared
+            // (it may have opened moments ago due to network round-trip delay from
+            // an earlier click, in which case AnvilMixin.setup() may have already
+            // run while we were still in this state and skipped calling start()).
+            // Only if it's still not open do we act on the crosshair again - this
+            // avoids re-triggering a fresh "place/open" attempt on top of one that
+            // already worked but just hadn't been confirmed client-side yet.
+            if (client.currentScreen instanceof AnvilScreen) {
+                debug(player, "Recovery: the anvil screen is open now - resuming.");
+                state = State.EXEC;
+                start();
+                return;
+            }
             handleRecovery(client, manager, player);
             return;
         }
@@ -674,13 +687,17 @@ public class Worker {
         BlockPos pos = hit.getBlockPos();
 
         if (client.world.getBlockState(pos).isIn(BlockTags.ANVIL)) {
-            // Already an anvil - just open it.
+            // Already an anvil - just click it to open it. Don't switch to EXEC
+            // yet though - the screen takes a tick or two to actually appear
+            // (server round-trip), so just wait here; the check at the top of
+            // this branch will pick it up the moment it really opens, avoiding a
+            // race where we'd otherwise conclude "still broken" too early and
+            // spam-click it repeatedly.
+            recoverAttempts++;
             var result = manager.interactBlock(player, Hand.MAIN_HAND, hit);
-            debug(player, "Recovery: opening anvil at " + pos.toShortString() + ", result=" + result);
-            recoverAttempts = 0;
-            // Go back to EXEC - once the screen actually re-opens, setup() will call
-            // start() automatically to resume exactly where we left off.
-            state = State.EXEC;
+            if (recoverAttempts % 6 == 1) {
+                debug(player, "Recovery: clicked anvil at " + pos.toShortString() + " to open it, result=" + result + " (attempt " + recoverAttempts + "). Waiting for the screen to appear...");
+            }
             return;
         }
 
